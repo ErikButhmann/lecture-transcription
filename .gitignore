@@ -1,0 +1,22 @@
+# virtual environment
+.venv/
+
+# environment variables (api-keys)
+.env
+
+# mypy
+.mypy_cache
+
+# IDE
+.vscode/
+
+# python cache
+__pycache__/
+
+# tests
+.coverage
+.pytest_cache
+
+# data
+data/*
+!data/README.md
