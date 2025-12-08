@@ -64,6 +64,60 @@ def clip_audio(audio: pl.Path, start: int = 0, end:int =60, output_location: pl.
     clip.close()
 
 
+def create_audio_chunks(audio: pl.Path, chunk_duration: int, output_location: pl.Path | None = None) -> None:
+    '''
+    Splits input audio file in smaller files. This is often necessary since the openai API cannot deal with
+    audio files that are larger than 25MB.
+
+    Args:
+        audio (Path):                   input audio file to split in chunks.
+        chunk_duration (int):           size of the audio chunks in seconds. The function will split the input audio file
+                                        into chunks after the first <chunk_size> seconds, after the second <chunk_size>
+                                        seconds etc.
+        output_location (Path | None):  output directory to save the chunks in. If values is None, a new sub-directory
+                                        will be created in the directory of the input audio file. This sub-directory is
+                                        named after the input audio file. The resulting audio files will be .mp3 files.
+    '''
+    clip = AudioFileClip(audio)
+    overall_duration = clip.duration
+    clip.close()
+
+    # creating sub-directory for chunks
+    if output_location is None:
+        subdir_name = audio.parts[-1]
+        subdir_name = subdir_name[0:subdir_name.rfind('.')]
+        output_location = audio.parent / subdir_name
+        output_location.mkdir()
+    if not output_location.is_dir():
+        raise ValueError('Output location must be a directory.')
+
+    # setting up number of chunks and start and end time
+    chunk_number = int((overall_duration // chunk_duration)) + 1
+    current_start = 0
+    current_end = chunk_duration
+
+    # cutting out each chunk and saving it in the subdirectory
+    for current_chunk in range(chunk_number):
+        if current_end > overall_duration:
+            # if the increased end is higher than the overall duration
+            # this means that we reached the end of the main file.
+            # Therefore, the end time is set to the overall duration since the main
+            # audio cannot be clipped to an end behind this duration
+            current_end = overall_duration
+
+        # creating a file name for each chunk
+        # file names are numbered based on the chunk number
+        file_name = audio.parts[-1]
+        file_name = file_name[0:file_name.rfind('.')] + '_part' + str(current_chunk) + '.mp3'
+
+        # clipping the main audio file
+        clip_audio(audio=audio, start=current_start, end=current_end, output_location = output_location / file_name)
+
+        # increase start and end time of the next chunk
+        current_start += chunk_duration
+        current_end += chunk_duration
+
+
 def transcribe_audio(audio: pl.Path, output_location: pl.Path | None = None) -> None:
     '''
     Transcribes the content of an audio file and saves the transcription. This function uses the openai API.
