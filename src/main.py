@@ -54,4 +54,4 @@ def transcribe_video(video_location: pl.Path,
                 f.write(print_time + ' ' + segment.text + '\n')
 
 if __name__ == '__main__':
-    transcribe_video(video_location=pl.Path("D:/Studium/SHK/Prof_Geoinfo/transkript/lecture-transcription/data/test_data/my_test_video.mp4"))
+    transcribe_video(video_location=pl.Path("PATH/TO/YOUR/VIDEO.mp4"))
