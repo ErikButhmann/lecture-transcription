@@ -12,8 +12,6 @@ def create_file_in_same_dir(input_file_location: pl.Path, file_ending: str) -> p
         file_ending (str):          String that will be added at the ending of the new file. This string
                                     should contain a file format specification.
     '''
-    file_name = input_file_location.parts[-1]
-    file_name = file_name[0:file_name.rfind('.')] + file_ending
+    file_name = input_file_location.stem + file_ending
     output_location = input_file_location.parent / file_name
-
     return output_location
